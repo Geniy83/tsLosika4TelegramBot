@@ -34,6 +34,7 @@ public class Bot extends TelegramLongPollingBot {
     @SneakyThrows
     public void onUpdateReceived(Update update) {
         new Thread(() -> {
+            //Проверка на введенный текст
             if (update.hasMessage()) {
                 String userName = update.getMessage().getFrom().getUserName();
                 String firstName = update.getMessage().getFrom().getFirstName();
@@ -43,11 +44,10 @@ public class Bot extends TelegramLongPollingBot {
                 if (start.startsWith("/start")) {
                     try {
 
-
-                        String status = botStatusService.getBotStatusByChat_id(chatId);
-                        if (status != null) {
-                            botStatusService.deleteBotStatusByChat_id(chatId);
-                        }
+//                        String status = botStatusService.getBotStatusByChat_id(chatId);
+//                        if (status != null) {
+//                            botStatusService.deleteBotStatusByChat_id(chatId);
+//                        }
 
                         botStatus = new BotStatus();
                         botStatus.setStatus(BotStatusEnums.ASK_0.name());
@@ -55,15 +55,35 @@ public class Bot extends TelegramLongPollingBot {
                         botStatus.setChat_id(chatId);
                         botStatusService.saveBotStatus(botStatus);
 
-                        execute(SendMessageConstructor.sendMessage("Привет " + firstName + " (@" + userName + ") в нашем телеграм-боте для сверки данных",
-                                update.getMessage().getChatId().toString(), false,
-                                null));
+                        execute(SendMessageConstructor.sendMessage("Привет " + firstName + " (@" + userName + ") в телеграм-боте для проведения голосования ТС Лосика 4. Нажимая кнопку 'Согласен', вы даёте согласие на обработку и использование персональных данных (ФИО собственника квартиры, площади жилого помещения и т.д., для проведения голосования согласно ЖК РБ)! При не согласии - нажмите 'Выход'",
+                                update.getMessage().getChatId().toString(), true,
+                                BotMainMenu.sendMainMenu()));
+                    } catch (TelegramApiException e) {
+                        e.printStackTrace();
+                    }
+                } else if (start.startsWith("/stop")) {
+                    try {
+                        botStatusService.updateBotStatus(chatId, BotStatusEnums.STOP.name());
+                        execute(SendMessageConstructor.sendMessage("Просьба явится в помещения ТС Лосика 4, для провидения очного голосования. При себе иметь удостовирение личности. До свидания!",
+                                update.getMessage().getChatId().toString(), false, null));
                     } catch (TelegramApiException e) {
                         e.printStackTrace();
                     }
                 }
-            } else if (update.hasCallbackQuery()) {
+            }
+            //Проверка на нажатие кнопки
+            else if (update.hasCallbackQuery()) {
+                String chatId = update.getCallbackQuery().getMessage().getChatId().toString();
+                String callback = update.getCallbackQuery().getData();
 
+                if (callback.equals("Exit")) {
+                    try {
+                        execute(SendMessageConstructor.sendMessage("Если вы уверены что хотите выйти кликните сюда -> /stop",
+                                chatId, false, null));
+                    } catch (TelegramApiException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
         }).start();
     }
