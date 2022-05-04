@@ -44,10 +44,11 @@ public class Bot extends TelegramLongPollingBot {
                 if (start.startsWith("/start")) {
                     try {
 
-//                        String status = botStatusService.getBotStatusByChat_id(chatId);
-//                        if (status != null) {
-//                            botStatusService.deleteBotStatusByChat_id(chatId);
-//                        }
+                        //УДАЛИТЬ!!!
+                        String status = botStatusService.getBotStatusByChat_id(chatId);
+                        if (status != null) {
+                            botStatusService.deleteBotStatusByChat_id(chatId);
+                        }
 
                         botStatus = new BotStatus();
                         botStatus.setStatus(BotStatusEnums.ASK_0.name());
@@ -55,7 +56,7 @@ public class Bot extends TelegramLongPollingBot {
                         botStatus.setChat_id(chatId);
                         botStatusService.saveBotStatus(botStatus);
 
-                        execute(SendMessageConstructor.sendMessage("Привет " + firstName + " (@" + userName + ") в телеграм-боте для проведения голосования ТС Лосика 4. Нажимая кнопку 'Согласен', вы даёте согласие на обработку и использование персональных данных (ФИО собственника квартиры, площади жилого помещения и т.д., для проведения голосования согласно ЖК РБ)! При не согласии - нажмите 'Выход'",
+                        execute(SendMessageConstructor.sendMessage("Привет " + firstName + " (@" + userName + ") в телеграм-боте для проведения голосования ТС Лосика 4. Нажимая кнопку 'Согласен', вы даёте согласие на хранение, обработку и использование персональных данных (ФИО собственника квартиры, площади жилого помещения и т.д., для проведения голосования согласно ЖК РБ)! При не согласии - нажмите 'Выход'",
                                 update.getMessage().getChatId().toString(), true,
                                 BotMainMenu.sendMainMenu()));
                     } catch (TelegramApiException e) {
@@ -69,6 +70,40 @@ public class Bot extends TelegramLongPollingBot {
                     } catch (TelegramApiException e) {
                         e.printStackTrace();
                     }
+                } else if (botStatusService.getBotStatusByChat_id(chatId).equals(BotStatusEnums.ASK_1.toString())) {
+
+                    String text = update.getMessage().getText();
+
+                    // проверка число ли это
+                    if (text.matches("[-+]?\\d+") || text.equals("481")) {
+                        //проверка на правильность квартир в доме
+                        if ((Integer.parseInt(text) >= 1 && Integer.parseInt(text) <= 118) || text.equals("481") ) {
+                            if (botStatusService.getBotStatusByChat_id(chatId) != null && update.getMessage().hasText()) {
+                                try {
+                                    botStatusService.updateBotRoom(chatId, text);
+                                    botStatusService.updateBotStatus(chatId, BotStatusEnums.ASK_2.name());
+                                    execute(SendMessageConstructor.sendMessage("Введите пароль",
+                                            update.getMessage().getChatId().toString(), false, null));
+                                } catch (TelegramApiException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        } else {
+                            try {
+                                execute(SendMessageConstructor.sendMessage("Введите номер квартиры от 1 до 118:",
+                                        update.getMessage().getChatId().toString(), false, null));
+                            } catch (TelegramApiException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    } else {
+                        try {
+                            execute(SendMessageConstructor.sendMessage("Это не число, введите число:",
+                                    update.getMessage().getChatId().toString(), false, null));
+                        } catch (TelegramApiException e) {
+                            e.printStackTrace();
+                        }
+                    }
                 }
             }
             //Проверка на нажатие кнопки
@@ -80,6 +115,14 @@ public class Bot extends TelegramLongPollingBot {
                     try {
                         execute(SendMessageConstructor.sendMessage("Если вы уверены что хотите выйти кликните сюда -> /stop",
                                 chatId, false, null));
+                    } catch (TelegramApiException e) {
+                        e.printStackTrace();
+                    }
+                } else if (callback.equals("Agree")) {
+                    botStatusService.updateBotStatus(chatId, BotStatusEnums.ASK_1.name());
+                    try {
+                        execute(SendMessageConstructor.sendMessage("Введите номер вашей квартиры: ",
+                                update.getCallbackQuery().getMessage().getChatId().toString(), false, null));
                     } catch (TelegramApiException e) {
                         e.printStackTrace();
                     }
