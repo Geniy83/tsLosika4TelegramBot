@@ -3,6 +3,7 @@ package by.nahodkin.tslosika4telegrambot.bot;
 import by.nahodkin.tslosika4telegrambot.entity.BotStatus;
 import by.nahodkin.tslosika4telegrambot.enums.BotStatusEnums;
 import by.nahodkin.tslosika4telegrambot.service.BotStatusService;
+import by.nahodkin.tslosika4telegrambot.service.UserService;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -19,6 +20,9 @@ public class Bot extends TelegramLongPollingBot {
     private BotStatus botStatus;
     @Autowired
     private BotStatusService botStatusService;
+
+    @Autowired
+    private UserService userService;
 
     @Override
     public String getBotUsername() {
@@ -56,7 +60,7 @@ public class Bot extends TelegramLongPollingBot {
                         botStatus.setChat_id(chatId);
                         botStatusService.saveBotStatus(botStatus);
 
-                        execute(SendMessageConstructor.sendMessage("Привет " + firstName + " (@" + userName + ") в телеграм-боте для проведения голосования ТС Лосика 4. Нажимая кнопку 'Согласен', вы даёте согласие на хранение, обработку и использование персональных данных (ФИО собственника квартиры, площади жилого помещения и т.д., для проведения голосования согласно ЖК РБ)! При не согласии - нажмите 'Выход'",
+                        execute(SendMessageConstructor.sendMessage("Привет " + firstName + " (@" + userName + ") в телеграм-боте для проведения собрания ТС Лосика 4. Нажимая кнопку 'Согласен', вы даёте согласие на хранение, обработку и использование персональных данных (ФИО собственника квартиры, площадь жилого помещения и т.д., для проведения голосования согласно ЖК РБ)! При не согласии - нажмите 'Выход'",
                                 update.getMessage().getChatId().toString(), true,
                                 BotMainMenu.sendMainMenu()));
                     } catch (TelegramApiException e) {
@@ -75,9 +79,9 @@ public class Bot extends TelegramLongPollingBot {
                     String text = update.getMessage().getText();
 
                     // проверка число ли это
-                    if (text.matches("[-+]?\\d+") || text.equals("481")) {
+                    if (text.matches("[-+]?\\d+") || text.equals("481") || text.equals("482") || text.equals("1031") || text.equals("1032")) {
                         //проверка на правильность квартир в доме
-                        if ((Integer.parseInt(text) >= 1 && Integer.parseInt(text) <= 118) || text.equals("481") ) {
+                        if ((Integer.parseInt(text) >= 1 && Integer.parseInt(text) <= 118) || text.equals("481") || text.equals("482") || text.equals("1031") || text.equals("1032")) {
                             if (botStatusService.getBotStatusByChat_id(chatId) != null && update.getMessage().hasText()) {
                                 try {
                                     botStatusService.updateBotRoom(chatId, text);
@@ -104,8 +108,37 @@ public class Bot extends TelegramLongPollingBot {
                             e.printStackTrace();
                         }
                     }
+                } else if(botStatusService.getBotStatusByChat_id(chatId).equals(BotStatusEnums.ASK_2.toString())) {
+                    String flat = botStatusService.getBotRoomByChat_id(chatId);
+                    Integer idUser = userService.getIdUserFlat(flat);
+                    String password = userService.getPassword(idUser);
+                    String text = update.getMessage().getText();
+                    if(text.equals(password)) {
+                        botStatusService.updateBotStatus(chatId, BotStatusEnums.ASK_3.name());
+                        String fio = userService.getFio(idUser);
+                        String area = userService.getArea(idUser);
+                        String share = userService.getShare(idUser);
+                        String status = userService.getStatusUser(idUser);
+                        try {
+                            execute(SendMessageConstructor.sendMessage("Собственник квартиры " + fio + ", ваша общая площадь жилого помещения (квартиры) равна " + area + " м2, и вы обладаете количеством голосов пропорциональным размеру доли в праве собственности на общее имущество совместного домавладения (согласно ЖК РБ ст.166 п.2), что составляет " + share + "%",
+                                    update.getMessage().getChatId().toString(), false, null));
+                        } catch (TelegramApiException e) {
+                            e.printStackTrace();
+                        }
+                    } else {
+                        try {
+                            execute(SendMessageConstructor.sendMessage("Пароль не верный, введите еще раз",
+                                    update.getMessage().getChatId().toString(), false, null));
+                        } catch (TelegramApiException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+
+
                 }
             }
+            
             //Проверка на нажатие кнопки
             else if (update.hasCallbackQuery()) {
                 String chatId = update.getCallbackQuery().getMessage().getChatId().toString();
