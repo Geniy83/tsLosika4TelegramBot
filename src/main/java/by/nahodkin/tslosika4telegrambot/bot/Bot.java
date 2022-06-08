@@ -2,6 +2,7 @@ package by.nahodkin.tslosika4telegrambot.bot;
 
 import by.nahodkin.tslosika4telegrambot.entity.BotStatus;
 import by.nahodkin.tslosika4telegrambot.enums.BotStatusEnums;
+import by.nahodkin.tslosika4telegrambot.question.QuestionsUser;
 import by.nahodkin.tslosika4telegrambot.service.BotStatusService;
 import by.nahodkin.tslosika4telegrambot.service.UserService;
 import lombok.SneakyThrows;
@@ -10,6 +11,9 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 public class Bot extends TelegramLongPollingBot {
@@ -23,6 +27,9 @@ public class Bot extends TelegramLongPollingBot {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private QuestionsUser questionsUser;
 
     @Override
     public String getBotUsername() {
@@ -38,6 +45,7 @@ public class Bot extends TelegramLongPollingBot {
     @SneakyThrows
     public void onUpdateReceived(Update update) {
         new Thread(() -> {
+            List<String[]> answerShare = new ArrayList<>();
             //Проверка на введенный текст
             if (update.hasMessage()) {
                 String userName = update.getMessage().getFrom().getUserName();
@@ -108,7 +116,7 @@ public class Bot extends TelegramLongPollingBot {
                             e.printStackTrace();
                         }
                     }
-                } else if(botStatusService.getBotStatusByChat_id(chatId).equals(BotStatusEnums.ASK_2.toString())) {
+                } else if(!botStatusService.getBotStatusByChat_id(chatId).equals(BotStatusEnums.ASK_0.toString()) && !botStatusService.getBotStatusByChat_id(chatId).equals(BotStatusEnums.ASK_1.toString())) {
                     String flat = botStatusService.getBotRoomByChat_id(chatId);
                     Integer idUser = userService.getIdUserFlat(flat);
                     String password = userService.getPassword(idUser);
@@ -122,6 +130,10 @@ public class Bot extends TelegramLongPollingBot {
                         try {
                             execute(SendMessageConstructor.sendMessage("Собственник квартиры " + fio + ", ваша общая площадь жилого помещения (квартиры) равна " + area + " м2, и вы обладаете количеством голосов пропорциональным размеру доли в праве собственности на общее имущество совместного домавладения (согласно ЖК РБ ст.166 п.2), что составляет " + share + "%",
                                     update.getMessage().getChatId().toString(), false, null));
+
+                            //вызов метода вопросов (НАПИСАТЬ!!!!!!!!!!)
+                            execute(questionsUser.questions(status, chatId));
+
                         } catch (TelegramApiException e) {
                             e.printStackTrace();
                         }
@@ -159,6 +171,30 @@ public class Bot extends TelegramLongPollingBot {
                     } catch (TelegramApiException e) {
                         e.printStackTrace();
                     }
+                } else if (callback.equals("Per")) {
+                    String flat = botStatusService.getBotRoomByChat_id(chatId);
+                    Integer idUser = userService.getIdUserFlat(flat);
+                    String share = userService.getShare(idUser);
+                    answerShare.add(new String[] {share, "0", "0"});
+                    System.out.println("ЗА");
+                    String status = userService.getStatusUser(idUser);
+                    try {
+                        execute(questionsUser.questions(status, chatId));
+                    } catch (TelegramApiException e) {
+                        e.printStackTrace();
+                    }
+                } else if (callback.equals("Against")) {
+                    String flat = botStatusService.getBotRoomByChat_id(chatId);
+                    Integer idUser = userService.getIdUserFlat(flat);
+                    String share = userService.getShare(idUser);
+                    answerShare.add(new String[] {"0", share, "0"});
+                    System.out.println("ПРОТИВ");
+                } else if (callback.equals("Abstained")) {
+                    String flat = botStatusService.getBotRoomByChat_id(chatId);
+                    Integer idUser = userService.getIdUserFlat(flat);
+                    String share = userService.getShare(idUser);
+                    answerShare.add(new String[] {"0", "0", share});
+                    System.out.println("Воздержался");
                 }
             }
         }).start();
