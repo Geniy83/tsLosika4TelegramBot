@@ -22,7 +22,7 @@ public interface UserRepository extends JpaRepository<User, String> {
 
     @Modifying
     @Query("update User set status =:status where id =:id")
-    void updateStatusByUser(@Param("id") Integer id, @Param("status") Integer status);
+    void updateStatusByUser(@Param("id") Integer id, @Param("status") String status);
 
     @Query("select status from User where id =:id")
     String getStatusByUser(@Param("id") Integer id);

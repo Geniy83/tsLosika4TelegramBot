@@ -30,7 +30,7 @@ public class UserService {
         return userRepository.getIdByUser(flat);
     }
 
-    public void updateUserStatus(Integer id, Integer status) {
+    public void updateUserStatus(Integer id, String status) {
         userRepository.updateStatusByUser(id, status);
     }
 

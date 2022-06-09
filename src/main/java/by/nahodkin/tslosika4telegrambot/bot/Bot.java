@@ -5,6 +5,7 @@ import by.nahodkin.tslosika4telegrambot.enums.BotStatusEnums;
 import by.nahodkin.tslosika4telegrambot.question.QuestionsUser;
 import by.nahodkin.tslosika4telegrambot.service.BotStatusService;
 import by.nahodkin.tslosika4telegrambot.service.UserService;
+import lombok.Getter;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -20,6 +21,9 @@ public class Bot extends TelegramLongPollingBot {
 
     private static final String botUserName = "NEVtestVEN";
     private static final String token = "5143583930:AAESQSalRsZ097mc5oxFL8vVAFXXL-13lOY";
+
+    @Getter
+    List<String[]> answerShare = new ArrayList<>();
 
     private BotStatus botStatus;
     @Autowired
@@ -45,7 +49,7 @@ public class Bot extends TelegramLongPollingBot {
     @SneakyThrows
     public void onUpdateReceived(Update update) {
         new Thread(() -> {
-            List<String[]> answerShare = new ArrayList<>();
+//            List<String[]> answerShare = new ArrayList<>();
             //Проверка на введенный текст
             if (update.hasMessage()) {
                 String userName = update.getMessage().getFrom().getUserName();
@@ -132,7 +136,7 @@ public class Bot extends TelegramLongPollingBot {
                                     update.getMessage().getChatId().toString(), false, null));
 
                             //вызов метода вопросов (НАПИСАТЬ!!!!!!!!!!)
-                            execute(questionsUser.questions(status, chatId));
+                            execute(questionsUser.questions(status, chatId, idUser));
 
                         } catch (TelegramApiException e) {
                             e.printStackTrace();
@@ -176,10 +180,9 @@ public class Bot extends TelegramLongPollingBot {
                     Integer idUser = userService.getIdUserFlat(flat);
                     String share = userService.getShare(idUser);
                     answerShare.add(new String[] {share, "0", "0"});
-                    System.out.println("ЗА");
                     String status = userService.getStatusUser(idUser);
                     try {
-                        execute(questionsUser.questions(status, chatId));
+                        execute(questionsUser.questions(status, chatId, idUser));
                     } catch (TelegramApiException e) {
                         e.printStackTrace();
                     }
@@ -188,13 +191,23 @@ public class Bot extends TelegramLongPollingBot {
                     Integer idUser = userService.getIdUserFlat(flat);
                     String share = userService.getShare(idUser);
                     answerShare.add(new String[] {"0", share, "0"});
-                    System.out.println("ПРОТИВ");
+                    String status = userService.getStatusUser(idUser);
+                    try {
+                        execute(questionsUser.questions(status, chatId, idUser));
+                    } catch (TelegramApiException e) {
+                        e.printStackTrace();
+                    }
                 } else if (callback.equals("Abstained")) {
                     String flat = botStatusService.getBotRoomByChat_id(chatId);
                     Integer idUser = userService.getIdUserFlat(flat);
                     String share = userService.getShare(idUser);
                     answerShare.add(new String[] {"0", "0", share});
-                    System.out.println("Воздержался");
+                    String status = userService.getStatusUser(idUser);
+                    try {
+                        execute(questionsUser.questions(status, chatId, idUser));
+                    } catch (TelegramApiException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }).start();
