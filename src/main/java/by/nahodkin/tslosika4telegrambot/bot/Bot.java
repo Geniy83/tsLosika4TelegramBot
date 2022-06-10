@@ -22,7 +22,6 @@ public class Bot extends TelegramLongPollingBot {
     private static final String botUserName = "NEVtestVEN";
     private static final String token = "5143583930:AAESQSalRsZ097mc5oxFL8vVAFXXL-13lOY";
 
-    @Getter
     List<String[]> answerShare = new ArrayList<>();
 
     private BotStatus botStatus;
@@ -49,7 +48,6 @@ public class Bot extends TelegramLongPollingBot {
     @SneakyThrows
     public void onUpdateReceived(Update update) {
         new Thread(() -> {
-//            List<String[]> answerShare = new ArrayList<>();
             //Проверка на введенный текст
             if (update.hasMessage()) {
                 String userName = update.getMessage().getFrom().getUserName();
@@ -59,7 +57,7 @@ public class Bot extends TelegramLongPollingBot {
 
                 if (start.startsWith("/start")) {
                     try {
-
+                        answerShare.clear();
                         //УДАЛИТЬ!!!
                         String status = botStatusService.getBotStatusByChat_id(chatId);
                         if (status != null) {
@@ -120,7 +118,7 @@ public class Bot extends TelegramLongPollingBot {
                             e.printStackTrace();
                         }
                     }
-                } else if(!botStatusService.getBotStatusByChat_id(chatId).equals(BotStatusEnums.ASK_0.toString()) && !botStatusService.getBotStatusByChat_id(chatId).equals(BotStatusEnums.ASK_1.toString())) {
+                } else if(botStatusService.getBotStatusByChat_id(chatId).equals(BotStatusEnums.ASK_2.toString())) {
                     String flat = botStatusService.getBotRoomByChat_id(chatId);
                     Integer idUser = userService.getIdUserFlat(flat);
                     String password = userService.getPassword(idUser);
@@ -149,9 +147,6 @@ public class Bot extends TelegramLongPollingBot {
                             e.printStackTrace();
                         }
                     }
-
-
-
                 }
             }
             
@@ -159,6 +154,9 @@ public class Bot extends TelegramLongPollingBot {
             else if (update.hasCallbackQuery()) {
                 String chatId = update.getCallbackQuery().getMessage().getChatId().toString();
                 String callback = update.getCallbackQuery().getData();
+                String flat = botStatusService.getBotRoomByChat_id(chatId);
+                Integer idUser = userService.getIdUserFlat(flat);
+                String share = userService.getShare(idUser);
 
                 if (callback.equals("Exit")) {
                     try {
@@ -176,9 +174,6 @@ public class Bot extends TelegramLongPollingBot {
                         e.printStackTrace();
                     }
                 } else if (callback.equals("Per")) {
-                    String flat = botStatusService.getBotRoomByChat_id(chatId);
-                    Integer idUser = userService.getIdUserFlat(flat);
-                    String share = userService.getShare(idUser);
                     answerShare.add(new String[] {share, "0", "0"});
                     String status = userService.getStatusUser(idUser);
                     try {
@@ -187,9 +182,6 @@ public class Bot extends TelegramLongPollingBot {
                         e.printStackTrace();
                     }
                 } else if (callback.equals("Against")) {
-                    String flat = botStatusService.getBotRoomByChat_id(chatId);
-                    Integer idUser = userService.getIdUserFlat(flat);
-                    String share = userService.getShare(idUser);
                     answerShare.add(new String[] {"0", share, "0"});
                     String status = userService.getStatusUser(idUser);
                     try {
@@ -198,10 +190,28 @@ public class Bot extends TelegramLongPollingBot {
                         e.printStackTrace();
                     }
                 } else if (callback.equals("Abstained")) {
-                    String flat = botStatusService.getBotRoomByChat_id(chatId);
-                    Integer idUser = userService.getIdUserFlat(flat);
-                    String share = userService.getShare(idUser);
                     answerShare.add(new String[] {"0", "0", share});
+                    String status = userService.getStatusUser(idUser);
+                    try {
+                        execute(questionsUser.questions(status, chatId, idUser));
+                    } catch (TelegramApiException e) {
+                        e.printStackTrace();
+                    }
+                } else if (callback.equals("Yes")) {
+                    botStatusService.updateBotStatus(chatId, BotStatusEnums.END.name());
+                    String status = userService.getStatusUser(idUser);
+                    try {
+                        execute(questionsUser.questions(status, chatId, idUser));
+                    } catch (TelegramApiException e) {
+                        e.printStackTrace();
+                    }
+                    userService.updateUserStatus(idUser, "1");
+                    System.out.println("YES");
+                    System.out.println(answerShare);
+                } else if (callback.equals("No")) {
+                    botStatusService.updateBotStatus(chatId, BotStatusEnums.ASK_3.name());
+                    System.out.println("NO1");
+                    answerShare.clear();
                     String status = userService.getStatusUser(idUser);
                     try {
                         execute(questionsUser.questions(status, chatId, idUser));

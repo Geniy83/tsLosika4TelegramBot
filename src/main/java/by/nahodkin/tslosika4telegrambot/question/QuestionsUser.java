@@ -36,10 +36,11 @@ public class QuestionsUser {
                 botStatusService.updateBotStatus(chatId, BotStatusEnums.ASK_5.toString());
                 sendMessage = SendMessageConstructor.sendMessage(question2, chatId, true, answer());
             } else if(statusQuestions.equals(BotStatusEnums.ASK_5.toString())) {
-                botStatusService.updateBotStatus(chatId, BotStatusEnums.END.toString());
+                botStatusService.updateBotStatus(chatId, BotStatusEnums.ASK_6.toString());
                 sendMessage = SendMessageConstructor.sendMessage(question3, chatId, true, answer());
+            } else if(statusQuestions.equals(BotStatusEnums.ASK_6.toString())) {
+                sendMessage = SendMessageConstructor.sendMessage("Подтвердите ваш выбор нажав 'Да' или пройдите заново опрос нажав 'Нет'", chatId, true, confirmation());
             } else if(statusQuestions.equals(BotStatusEnums.END.toString())) {
-                userService.updateUserStatus(idUser, "1");
                 sendMessage = SendMessageConstructor.sendMessage("Спасибо за участие в собрании ТС", chatId, false, null);
             }
         } else {
@@ -53,5 +54,11 @@ public class QuestionsUser {
                 KeyboardConstructor.createRow(KeyboardConstructor.createButton("За", "Per"),
                         KeyboardConstructor.createButton("Против", "Against"),
                         KeyboardConstructor.createButton("Воздержался", "Abstained")));
+    }
+
+    public InlineKeyboardMarkup confirmation() {
+        return KeyboardConstructor.createMarkup(
+                KeyboardConstructor.createRow(KeyboardConstructor.createButton("Да", "Yes"),
+                        KeyboardConstructor.createButton("Нет", "No")));
     }
 }
