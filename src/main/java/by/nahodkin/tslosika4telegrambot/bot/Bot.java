@@ -3,9 +3,9 @@ package by.nahodkin.tslosika4telegrambot.bot;
 import by.nahodkin.tslosika4telegrambot.entity.BotStatus;
 import by.nahodkin.tslosika4telegrambot.enums.BotStatusEnums;
 import by.nahodkin.tslosika4telegrambot.question.QuestionsUser;
+import by.nahodkin.tslosika4telegrambot.saveAnswers.SaveAnswers;
 import by.nahodkin.tslosika4telegrambot.service.BotStatusService;
 import by.nahodkin.tslosika4telegrambot.service.UserService;
-import lombok.Getter;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -13,26 +13,21 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Component
 public class Bot extends TelegramLongPollingBot {
 
     private static final String botUserName = "NEVtestVEN";
     private static final String token = "5143583930:AAESQSalRsZ097mc5oxFL8vVAFXXL-13lOY";
 
-    List<String[]> answerShare = new ArrayList<>();
-
     private BotStatus botStatus;
     @Autowired
     private BotStatusService botStatusService;
-
     @Autowired
     private UserService userService;
-
     @Autowired
     private QuestionsUser questionsUser;
+    @Autowired
+    private SaveAnswers saveAnswers;
 
     @Override
     public String getBotUsername() {
@@ -57,13 +52,10 @@ public class Bot extends TelegramLongPollingBot {
 
                 if (start.startsWith("/start")) {
                     try {
-                        answerShare.clear();
-                        //УДАЛИТЬ!!!
                         String status = botStatusService.getBotStatusByChat_id(chatId);
                         if (status != null) {
                             botStatusService.deleteBotStatusByChat_id(chatId);
                         }
-
                         botStatus = new BotStatus();
                         botStatus.setStatus(BotStatusEnums.ASK_0.name());
                         botStatus.setUsername(userName);
@@ -132,10 +124,7 @@ public class Bot extends TelegramLongPollingBot {
                         try {
                             execute(SendMessageConstructor.sendMessage("Собственник квартиры " + fio + ", ваша общая площадь жилого помещения (квартиры) равна " + area + " м2, и вы обладаете количеством голосов пропорциональным размеру доли в праве собственности на общее имущество совместного домавладения (согласно ЖК РБ ст.166 п.2), что составляет " + share + "%",
                                     update.getMessage().getChatId().toString(), false, null));
-
-                            //вызов метода вопросов (НАПИСАТЬ!!!!!!!!!!)
                             execute(questionsUser.questions(status, chatId, idUser));
-
                         } catch (TelegramApiException e) {
                             e.printStackTrace();
                         }
@@ -157,6 +146,8 @@ public class Bot extends TelegramLongPollingBot {
                 String flat = botStatusService.getBotRoomByChat_id(chatId);
                 Integer idUser = userService.getIdUserFlat(flat);
                 String share = userService.getShare(idUser);
+                String statusQuestions = botStatusService.getBotStatusByChat_id(chatId);
+                String status = userService.getStatusUser(idUser);
 
                 if (callback.equals("Exit")) {
                     try {
@@ -174,24 +165,22 @@ public class Bot extends TelegramLongPollingBot {
                         e.printStackTrace();
                     }
                 } else if (callback.equals("Per")) {
-                    answerShare.add(new String[] {share, "0", "0"});
-                    String status = userService.getStatusUser(idUser);
+//                    String status = userService.getStatusUser(idUser);
+                    saveAnswers.saveAnswer(idUser, statusQuestions, share, "0", "0");
                     try {
                         execute(questionsUser.questions(status, chatId, idUser));
                     } catch (TelegramApiException e) {
                         e.printStackTrace();
                     }
                 } else if (callback.equals("Against")) {
-                    answerShare.add(new String[] {"0", share, "0"});
-                    String status = userService.getStatusUser(idUser);
+                    saveAnswers.saveAnswer(idUser, statusQuestions, "0", share, "0");
                     try {
                         execute(questionsUser.questions(status, chatId, idUser));
                     } catch (TelegramApiException e) {
                         e.printStackTrace();
                     }
                 } else if (callback.equals("Abstained")) {
-                    answerShare.add(new String[] {"0", "0", share});
-                    String status = userService.getStatusUser(idUser);
+                    saveAnswers.saveAnswer(idUser, statusQuestions, "0", "0", share);
                     try {
                         execute(questionsUser.questions(status, chatId, idUser));
                     } catch (TelegramApiException e) {
@@ -199,20 +188,15 @@ public class Bot extends TelegramLongPollingBot {
                     }
                 } else if (callback.equals("Yes")) {
                     botStatusService.updateBotStatus(chatId, BotStatusEnums.END.name());
-                    String status = userService.getStatusUser(idUser);
                     try {
                         execute(questionsUser.questions(status, chatId, idUser));
                     } catch (TelegramApiException e) {
                         e.printStackTrace();
                     }
                     userService.updateUserStatus(idUser, "1");
-                    System.out.println("YES");
-                    System.out.println(answerShare);
                 } else if (callback.equals("No")) {
                     botStatusService.updateBotStatus(chatId, BotStatusEnums.ASK_3.name());
-                    System.out.println("NO1");
-                    answerShare.clear();
-                    String status = userService.getStatusUser(idUser);
+                    saveAnswers.deleteAnswer(idUser);
                     try {
                         execute(questionsUser.questions(status, chatId, idUser));
                     } catch (TelegramApiException e) {

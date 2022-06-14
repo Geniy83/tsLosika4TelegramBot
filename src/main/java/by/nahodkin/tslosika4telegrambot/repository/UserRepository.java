@@ -39,15 +39,34 @@ public interface UserRepository extends JpaRepository<User, String> {
     @Query("select id from User where flat =:flat")
     Integer getIdByUser(@Param("flat") String flat);
 
+    // ------------------------- Вопрос 1
     @Modifying
     @Query("update User set q11 =:q11 where id =:id")
-    void updateQ11ByUser(@Param("id") Integer id, @Param("q11") Double q11);
-
+    void updateQ11ByUser(@Param("id") Integer id, @Param("q11") String q11);
     @Modifying
     @Query("update User set q12 =:q12 where id =:id")
-    void updateQ12ByUser(@Param("id") Integer id, @Param("q12") Double q12);
-
+    void updateQ12ByUser(@Param("id") Integer id, @Param("q12") String q12);
     @Modifying
     @Query("update User set q13 =:q13 where id =:id")
-    void updateQ13ByUser(@Param("id") Integer id, @Param("q13") Double q13);
+    void updateQ13ByUser(@Param("id") Integer id, @Param("q13") String q13);
+    // ------------------------- Вопрос 2
+    @Modifying
+    @Query("update User set q21 =:q21 where id =:id")
+    void updateQ21ByUser(@Param("id") Integer id, @Param("q21") String q21);
+    @Modifying
+    @Query("update User set q22 =:q22 where id =:id")
+    void updateQ22ByUser(@Param("id") Integer id, @Param("q22") String q22);
+    @Modifying
+    @Query("update User set q23 =:q23 where id =:id")
+    void updateQ23ByUser(@Param("id") Integer id, @Param("q23") String q23);
+    // ------------------------- Вопрос 3
+    @Modifying
+    @Query("update User set q31 =:q31 where id =:id")
+    void updateQ31ByUser(@Param("id") Integer id, @Param("q31") String q31);
+    @Modifying
+    @Query("update User set q32 =:q32 where id =:id")
+    void updateQ32ByUser(@Param("id") Integer id, @Param("q32") String q32);
+    @Modifying
+    @Query("update User set q33 =:q33 where id =:id")
+    void updateQ33ByUser(@Param("id") Integer id, @Param("q33") String q33);
 }

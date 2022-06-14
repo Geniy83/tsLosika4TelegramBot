@@ -13,10 +13,6 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
-    public void saveUser(User user) {
-        userRepository.save(user);
-    }
-
     public Double getAllByArea() {
         List<Double> area = userRepository.getAllByArea();
         return area.stream().mapToDouble((s)->s).sum();
@@ -50,15 +46,33 @@ public class UserService {
         return userRepository.getAreaByUser(id);
     }
 
-    public void updateQ11(Integer id, Double q11) {
+    public void updateQ11(Integer id, String q11) {
         userRepository.updateQ11ByUser(id, q11);
     }
-
-    public void updateQ12(Integer id, Double q12) {
+    public void updateQ12(Integer id, String q12) {
         userRepository.updateQ12ByUser(id, q12);
     }
-
-    public void updateQ13(Integer id, Double q13) {
+    public void updateQ13(Integer id, String q13) {
         userRepository.updateQ13ByUser(id, q13);
+    }
+
+    public void updateQ21(Integer id, String q21) {
+        userRepository.updateQ21ByUser(id, q21);
+    }
+    public void updateQ22(Integer id, String q22) {
+        userRepository.updateQ22ByUser(id, q22);
+    }
+    public void updateQ23(Integer id, String q23) {
+        userRepository.updateQ23ByUser(id, q23);
+    }
+
+    public void updateQ31(Integer id, String q31) {
+        userRepository.updateQ31ByUser(id, q31);
+    }
+    public void updateQ32(Integer id, String q32) {
+        userRepository.updateQ32ByUser(id, q32);
+    }
+    public void updateQ33(Integer id, String q33) {
+        userRepository.updateQ33ByUser(id, q33);
     }
 }
