@@ -15,7 +15,19 @@ import java.util.List;
 public interface UserRepository extends JpaRepository<User, String> {
 
     @Query("select area from User")
-    List<Double> getAllByArea();
+    List<String> getAllByArea();
+
+    @Query("select share from User")
+    List<String> getAllByShare();
+
+    @Query("select share from User where status =:status")
+    List<String> getAllByShareTrue(@Param("status") String status);
+
+    @Query("select q11 from User where status =:status")
+    List<String> getAllByQ11(@Param("status") String status);
+
+    @Query("select status from User where status =:status")
+    List<String> getAllByStatusTrue(@Param("status") String status);
 
     @Query("select fio from User where id =:id")
     String getUserByFio(@Param("id") Integer id);

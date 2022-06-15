@@ -14,8 +14,28 @@ public class UserService {
     private UserRepository userRepository;
 
     public Double getAllByArea() {
-        List<Double> area = userRepository.getAllByArea();
-        return area.stream().mapToDouble((s)->s).sum();
+        List<String> area = userRepository.getAllByArea();
+        return area.stream().mapToDouble(Double::valueOf).sum();
+    }
+
+    public Double getAllByShare() {
+        List<String> share = userRepository.getAllByShare();
+        return share.stream().mapToDouble(Double::valueOf).sum();
+    }
+
+    public Double getAllByQ11(String status) {
+        List<String> q11 = userRepository.getAllByQ11(status);
+        return q11.stream().mapToDouble(Double::valueOf).sum();
+    }
+
+    public Double getAllByShareTrue(String status) {
+        List<String> shareTrue = userRepository.getAllByShareTrue(status);
+        return shareTrue.stream().mapToDouble(Double::valueOf).sum();
+    }
+
+    public Integer getAllByStatusTrue(String status) {
+        List<String> statusTrue = userRepository.getAllByStatusTrue(status);
+        return statusTrue.stream().mapToInt(Integer::valueOf).sum();
     }
 
     public String getFio(Integer id) {

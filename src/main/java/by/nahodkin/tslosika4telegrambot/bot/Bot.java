@@ -194,6 +194,11 @@ public class Bot extends TelegramLongPollingBot {
                         e.printStackTrace();
                     }
                     userService.updateUserStatus(idUser, "1");
+
+                    System.out.println("S=" + userService.getAllByArea() + " доля =" + userService.getAllByShare());
+                    System.out.println("На данный момент проголосовало " + userService.getAllByStatusTrue("1") + " человек, обладающие долей от общего имущества " + userService.getAllByShareTrue("1") + " %");
+                    System.out.println("1 Вопрос ЗА = " + userService.getAllByQ11("1") + " %");
+
                 } else if (callback.equals("No")) {
                     botStatusService.updateBotStatus(chatId, BotStatusEnums.ASK_3.name());
                     saveAnswers.deleteAnswer(idUser);
