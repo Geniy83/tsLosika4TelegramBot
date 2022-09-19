@@ -31,6 +31,10 @@ public class BotStatusService {
         repository.updateBotRoomByChat_id(chat_id, room);
     }
 
+    public void updateBotDate(String chat_id, String date) {
+        repository.updateBotDateByChat_id(chat_id, date);
+    }
+
     public String getBotRoomByChat_id(String chat_id) {
         return repository.getBotRoomByChat_id(chat_id);
     }

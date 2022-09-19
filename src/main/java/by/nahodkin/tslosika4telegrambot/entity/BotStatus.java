@@ -29,4 +29,6 @@ public class BotStatus {
     private String status;
     @Setter
     private String room;
+    @Setter
+    private String date;
 }

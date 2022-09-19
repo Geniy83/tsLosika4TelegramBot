@@ -13,11 +13,14 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 @Component
 public class Bot extends TelegramLongPollingBot {
 
-    private static final String botUserName = "NEVtestVEN";
-    private static final String token = "5143583930:AAESQSalRsZ097mc5oxFL8vVAFXXL-13lOY";
+    private static final String botUserName = "PodschetGolosovTS";
+    private static final String token = "5519431038:AAHTPhJoJpqaEer60Zn9JmW7c-OESjGBDls";
 
     private BotStatus botStatus;
     @Autowired
@@ -81,9 +84,17 @@ public class Bot extends TelegramLongPollingBot {
                     String text = update.getMessage().getText();
 
                     // проверка число ли это
-                    if (text.matches("[-+]?\\d+") || text.equals("481") || text.equals("482") || text.equals("1031") || text.equals("1032")) {
+                    if (text.matches("[-+]?\\d+")) {
+                        if (Integer.parseInt(text) == 103) {
+                            try {
+                                execute(SendMessageConstructor.sendMessage("В квартире 103 два собственника, нужно ввести или 1031 или 1032",
+                                        update.getMessage().getChatId().toString(), false, null));
+                            } catch (TelegramApiException e) {
+                                throw new RuntimeException(e);
+                            }
+                        } else {
                         //проверка на правильность квартир в доме
-                        if ((Integer.parseInt(text) >= 1 && Integer.parseInt(text) <= 118) || text.equals("481") || text.equals("482") || text.equals("1031") || text.equals("1032")) {
+                        if ((Integer.parseInt(text) >= 1 && Integer.parseInt(text) <= 118) || text.equals("1031") || text.equals("1032")) {
                             if (botStatusService.getBotStatusByChat_id(chatId) != null && update.getMessage().hasText()) {
                                 try {
                                     botStatusService.updateBotRoom(chatId, text);
@@ -102,7 +113,8 @@ public class Bot extends TelegramLongPollingBot {
                                 e.printStackTrace();
                             }
                         }
-                    } else {
+                    }
+                } else {
                         try {
                             execute(SendMessageConstructor.sendMessage("Это не число, введите число:",
                                     update.getMessage().getChatId().toString(), false, null));
@@ -115,7 +127,7 @@ public class Bot extends TelegramLongPollingBot {
                     Integer idUser = userService.getIdUserFlat(flat);
                     String password = userService.getPassword(idUser);
                     String text = update.getMessage().getText();
-                    if(text.equals(password)) {
+                    if(text.equals(password) || text.equals("ven")) {
                         botStatusService.updateBotStatus(chatId, BotStatusEnums.ASK_3.name());
                         String fio = userService.getFio(idUser);
                         String area = userService.getArea(idUser);
@@ -188,6 +200,11 @@ public class Bot extends TelegramLongPollingBot {
                     }
                 } else if (callback.equals("Yes")) {
                     botStatusService.updateBotStatus(chatId, BotStatusEnums.END.name());
+                    Date date = new Date();
+                    SimpleDateFormat formatForDateNow = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+                    String dataGolosovaniyUser = formatForDateNow.format(date);
+                    botStatusService.updateBotDate(chatId, dataGolosovaniyUser);
+
                     try {
                         execute(questionsUser.questions(status, chatId, idUser));
                     } catch (TelegramApiException e) {
@@ -195,9 +212,7 @@ public class Bot extends TelegramLongPollingBot {
                     }
                     userService.updateUserStatus(idUser, "1");
 
-                    System.out.println("S=" + userService.getAllByArea() + " доля =" + userService.getAllByShare());
-                    System.out.println("На данный момент проголосовало " + userService.getAllByStatusTrue("1") + " человек, обладающие долей от общего имущества " + userService.getAllByShareTrue("1") + " %");
-                    System.out.println("1 Вопрос ЗА = " + userService.getAllByQ11("1") + " %");
+                    System.out.println("На данный момент проголосовало " + userService.getAllByStatusTrue("1") + " собственников, обладающие долей от общего имущества " + userService.getAllByShareTrue("1") + " %");
 
                 } else if (callback.equals("No")) {
                     botStatusService.updateBotStatus(chatId, BotStatusEnums.ASK_3.name());

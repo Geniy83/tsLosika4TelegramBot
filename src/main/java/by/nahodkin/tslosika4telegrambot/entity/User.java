@@ -35,4 +35,28 @@ public class User {
     private String q31;
     private String q32;
     private String q33;
+
+    private String q41;
+    private String q42;
+    private String q43;
+
+    private String q51;
+    private String q52;
+    private String q53;
+
+    private String q61;
+    private String q62;
+    private String q63;
+
+    private String q71;
+    private String q72;
+    private String q73;
+
+    private String q81;
+    private String q82;
+    private String q83;
+
+    private String q91;
+    private String q92;
+    private String q93;
 }

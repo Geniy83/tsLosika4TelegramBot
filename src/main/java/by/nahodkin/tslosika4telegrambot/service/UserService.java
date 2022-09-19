@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class UserService {
+public class UserService extends NullPointerException {
 
     @Autowired
     private UserRepository userRepository;
@@ -23,9 +23,14 @@ public class UserService {
         return share.stream().mapToDouble(Double::valueOf).sum();
     }
 
-    public Double getAllByQ11(String status) {
-        List<String> q11 = userRepository.getAllByQ11(status);
-        return q11.stream().mapToDouble(Double::valueOf).sum();
+    public Double getAllByQ11(String status)  {
+        try {
+            List<String> q11 = userRepository.getAllByQ11(status);
+            return q11.stream().mapToDouble(Double::valueOf).sum();
+        } catch (Exception e) {
+            assert e instanceof NullPointerException;
+        }
+        return 0.0;
     }
 
     public Double getAllByShareTrue(String status) {
@@ -94,5 +99,65 @@ public class UserService {
     }
     public void updateQ33(Integer id, String q33) {
         userRepository.updateQ33ByUser(id, q33);
+    }
+
+    public void updateQ41(Integer id, String q41) {
+        userRepository.updateQ41ByUser(id, q41);
+    }
+    public void updateQ42(Integer id, String q42) {
+        userRepository.updateQ42ByUser(id, q42);
+    }
+    public void updateQ43(Integer id, String q43) {
+        userRepository.updateQ43ByUser(id, q43);
+    }
+
+    public void updateQ51(Integer id, String q51) {
+        userRepository.updateQ51ByUser(id, q51);
+    }
+    public void updateQ52(Integer id, String q52) {
+        userRepository.updateQ52ByUser(id, q52);
+    }
+    public void updateQ53(Integer id, String q53) {
+        userRepository.updateQ53ByUser(id, q53);
+    }
+
+    public void updateQ61(Integer id, String q61) {
+        userRepository.updateQ61ByUser(id, q61);
+    }
+    public void updateQ62(Integer id, String q62) {
+        userRepository.updateQ62ByUser(id, q62);
+    }
+    public void updateQ63(Integer id, String q63) {
+        userRepository.updateQ63ByUser(id, q63);
+    }
+
+    public void updateQ71(Integer id, String q71) {
+        userRepository.updateQ71ByUser(id, q71);
+    }
+    public void updateQ72(Integer id, String q72) {
+        userRepository.updateQ72ByUser(id, q72);
+    }
+    public void updateQ73(Integer id, String q73) {
+        userRepository.updateQ73ByUser(id, q73);
+    }
+
+    public void updateQ81(Integer id, String q81) {
+        userRepository.updateQ81ByUser(id, q81);
+    }
+    public void updateQ82(Integer id, String q82) {
+        userRepository.updateQ82ByUser(id, q82);
+    }
+    public void updateQ83(Integer id, String q83) {
+        userRepository.updateQ83ByUser(id, q83);
+    }
+
+    public void updateQ91(Integer id, String q91) {
+        userRepository.updateQ91ByUser(id, q91);
+    }
+    public void updateQ92(Integer id, String q92) {
+        userRepository.updateQ92ByUser(id, q92);
+    }
+    public void updateQ93(Integer id, String q93) {
+        userRepository.updateQ93ByUser(id, q93);
     }
 }

@@ -28,6 +28,10 @@ public interface BotStatusRepository extends JpaRepository<BotStatus, String> {
     @Query("update BotStatus set room =:room where chat_id =:chat_id")
     void updateBotRoomByChat_id(@Param("chat_id") String chat_id, @Param("room") String room);
 
+    @Modifying
+    @Query("update BotStatus set date =:date where chat_id =:chat_id")
+    void updateBotDateByChat_id(@Param("chat_id") String chat_id, @Param("date") String date);
+
     @Query("select room from BotStatus where chat_id =:chat_id")
     String getBotRoomByChat_id(@Param("chat_id") String chat_id);
 }

@@ -32,15 +32,43 @@ public class QuestionsUser {
             if(statusQuestions.equals(BotStatusEnums.ASK_3.toString())) {
                 botStatusService.updateBotStatus(chatId, BotStatusEnums.ASK_4.toString());
                 sendMessage = SendMessageConstructor.sendMessage(question1, chatId, true, answer());
-            } else if(statusQuestions.equals(BotStatusEnums.ASK_4.toString())) {
+            } else
+                if(statusQuestions.equals(BotStatusEnums.ASK_4.toString())) {
                 botStatusService.updateBotStatus(chatId, BotStatusEnums.ASK_5.toString());
                 sendMessage = SendMessageConstructor.sendMessage(question2, chatId, true, answer());
-            } else if(statusQuestions.equals(BotStatusEnums.ASK_5.toString())) {
+            } else
+                if(statusQuestions.equals(BotStatusEnums.ASK_5.toString())) {
                 botStatusService.updateBotStatus(chatId, BotStatusEnums.ASK_6.toString());
                 sendMessage = SendMessageConstructor.sendMessage(question3, chatId, true, answer());
-            } else if(statusQuestions.equals(BotStatusEnums.ASK_6.toString())) {
+            } else
+                if(statusQuestions.equals(BotStatusEnums.ASK_6.toString())) {
+                    botStatusService.updateBotStatus(chatId, BotStatusEnums.ASK_7.toString());
+                    sendMessage = SendMessageConstructor.sendMessage(question4, chatId, true, answer());
+                } else
+                if(statusQuestions.equals(BotStatusEnums.ASK_7.toString())) {
+                    botStatusService.updateBotStatus(chatId, BotStatusEnums.ASK_8.toString());
+                    sendMessage = SendMessageConstructor.sendMessage(question5, chatId, true, answer());
+                } else
+                if(statusQuestions.equals(BotStatusEnums.ASK_8.toString())) {
+                    botStatusService.updateBotStatus(chatId, BotStatusEnums.ASK_9.toString());
+                    sendMessage = SendMessageConstructor.sendMessage(question6, chatId, true, answer());
+                } else
+                if(statusQuestions.equals(BotStatusEnums.ASK_9.toString())) {
+                    botStatusService.updateBotStatus(chatId, BotStatusEnums.ASK_10.toString());
+                    sendMessage = SendMessageConstructor.sendMessage(question7, chatId, true, answer());
+                } else
+                if(statusQuestions.equals(BotStatusEnums.ASK_10.toString())) {
+                    botStatusService.updateBotStatus(chatId, BotStatusEnums.ASK_11.toString());
+                    sendMessage = SendMessageConstructor.sendMessage(question8, chatId, true, answer());
+                } else
+                if(statusQuestions.equals(BotStatusEnums.ASK_11.toString())) {
+                    botStatusService.updateBotStatus(chatId, BotStatusEnums.ASK_12.toString());
+                    sendMessage = SendMessageConstructor.sendMessage(question9, chatId, true, answer());
+                } else
+                if(statusQuestions.equals(BotStatusEnums.ASK_12.toString())) {
                 sendMessage = SendMessageConstructor.sendMessage("Подтвердите ваш выбор нажав 'Да' или пройдите заново опрос нажав 'Нет'", chatId, true, confirmation());
-            } else if(statusQuestions.equals(BotStatusEnums.END.toString())) {
+            } else
+                if(statusQuestions.equals(BotStatusEnums.END.toString())) {
                 sendMessage = SendMessageConstructor.sendMessage("Спасибо за участие в собрании ТС", chatId, false, null);
             }
         } else {
