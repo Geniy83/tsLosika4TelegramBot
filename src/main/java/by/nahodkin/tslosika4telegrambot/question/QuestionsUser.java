@@ -10,6 +10,8 @@ import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 
 import java.util.List;
@@ -34,6 +36,11 @@ public class QuestionsUser {
                 sendMessage = SendMessageConstructor.sendMessage(question1, chatId, true, answer());
             } else
                 if(statusQuestions.equals(BotStatusEnums.ASK_4.toString())) {
+                    EditMessageReplyMarkup editMessageReplyMarkup = new EditMessageReplyMarkup();
+                    editMessageReplyMarkup.setMessageId(sendMessage.getReplyToMessageId());
+                    editMessageReplyMarkup.setReplyMarkup(null);
+
+
                 botStatusService.updateBotStatus(chatId, BotStatusEnums.ASK_5.toString());
                 sendMessage = SendMessageConstructor.sendMessage(question2, chatId, true, answer());
             } else

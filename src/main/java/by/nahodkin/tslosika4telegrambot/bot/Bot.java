@@ -10,11 +10,17 @@ import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import static by.nahodkin.tslosika4telegrambot.question.Questions.*;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+import static by.nahodkin.tslosika4telegrambot.question.Questions.*;
 
 @Component
 public class Bot extends TelegramLongPollingBot {
@@ -153,6 +159,8 @@ public class Bot extends TelegramLongPollingBot {
             
             //Проверка на нажатие кнопки
             else if (update.hasCallbackQuery()) {
+                Integer messageId = update.getCallbackQuery().getMessage().getMessageId();
+                String messageText = update.getCallbackQuery().getMessage().getText();
                 String chatId = update.getCallbackQuery().getMessage().getChatId().toString();
                 String callback = update.getCallbackQuery().getData();
                 String flat = botStatusService.getBotRoomByChat_id(chatId);
@@ -163,6 +171,12 @@ public class Bot extends TelegramLongPollingBot {
 
                 if (callback.equals("Exit")) {
                     try {
+                        EditMessageReplyMarkup editMessageReplyMarkup = new EditMessageReplyMarkup();
+                        editMessageReplyMarkup.setMessageId(messageId);
+                        editMessageReplyMarkup.setChatId(chatId);
+                        editMessageReplyMarkup.setReplyMarkup(null);
+                        execute(editMessageReplyMarkup);
+
                         execute(SendMessageConstructor.sendMessage("Если вы уверены что хотите выйти кликните сюда -> /stop",
                                 chatId, false, null));
                     } catch (TelegramApiException e) {
@@ -171,15 +185,32 @@ public class Bot extends TelegramLongPollingBot {
                 } else if (callback.equals("Agree")) {
                     botStatusService.updateBotStatus(chatId, BotStatusEnums.ASK_1.name());
                     try {
+                        EditMessageReplyMarkup editMessageReplyMarkup = new EditMessageReplyMarkup();
+                        editMessageReplyMarkup.setMessageId(messageId);
+                        editMessageReplyMarkup.setChatId(chatId);
+                        editMessageReplyMarkup.setReplyMarkup(null);
+                        execute(editMessageReplyMarkup);
+
                         execute(SendMessageConstructor.sendMessage("Введите номер вашей квартиры: ",
                                 update.getCallbackQuery().getMessage().getChatId().toString(), false, null));
                     } catch (TelegramApiException e) {
                         e.printStackTrace();
                     }
                 } else if (callback.equals("Per")) {
-//                    String status = userService.getStatusUser(idUser);
                     saveAnswers.saveAnswer(idUser, statusQuestions, share, "0", "0");
                     try {
+                        EditMessageReplyMarkup editMessageReplyMarkup = new EditMessageReplyMarkup();
+                        editMessageReplyMarkup.setMessageId(messageId);
+                        editMessageReplyMarkup.setChatId(chatId);
+                        editMessageReplyMarkup.setReplyMarkup(null);
+                        execute(editMessageReplyMarkup);
+                        EditMessageText editMessageText = new EditMessageText();
+                        editMessageText.setMessageId(messageId);
+                        editMessageText.setChatId(chatId);
+                        editMessageText.setParseMode("HTML");
+                        editMessageText.setText(messageText + "\n<b><i><u>Вы проголосовали: ЗА</u></i></b>");
+                        execute(editMessageText);
+
                         execute(questionsUser.questions(status, chatId, idUser));
                     } catch (TelegramApiException e) {
                         e.printStackTrace();
@@ -187,6 +218,18 @@ public class Bot extends TelegramLongPollingBot {
                 } else if (callback.equals("Against")) {
                     saveAnswers.saveAnswer(idUser, statusQuestions, "0", share, "0");
                     try {
+                        EditMessageReplyMarkup editMessageReplyMarkup = new EditMessageReplyMarkup();
+                        editMessageReplyMarkup.setMessageId(messageId);
+                        editMessageReplyMarkup.setChatId(chatId);
+                        editMessageReplyMarkup.setReplyMarkup(null);
+                        execute(editMessageReplyMarkup);
+                        EditMessageText editMessageText = new EditMessageText();
+                        editMessageText.setMessageId(messageId);
+                        editMessageText.setChatId(chatId);
+                        editMessageText.setParseMode("HTML");
+                        editMessageText.setText(messageText + "\n<b><i><u>Вы проголосовали: ПРОТИВ</u></i></b>");
+                        execute(editMessageText);
+
                         execute(questionsUser.questions(status, chatId, idUser));
                     } catch (TelegramApiException e) {
                         e.printStackTrace();
@@ -194,6 +237,18 @@ public class Bot extends TelegramLongPollingBot {
                 } else if (callback.equals("Abstained")) {
                     saveAnswers.saveAnswer(idUser, statusQuestions, "0", "0", share);
                     try {
+                        EditMessageReplyMarkup editMessageReplyMarkup = new EditMessageReplyMarkup();
+                        editMessageReplyMarkup.setMessageId(messageId);
+                        editMessageReplyMarkup.setChatId(chatId);
+                        editMessageReplyMarkup.setReplyMarkup(null);
+                        execute(editMessageReplyMarkup);
+                        EditMessageText editMessageText = new EditMessageText();
+                        editMessageText.setMessageId(messageId);
+                        editMessageText.setChatId(chatId);
+                        editMessageText.setParseMode("HTML");
+                        editMessageText.setText(messageText + "\n<b><i><u>Вы проголосовали: ВОЗДЕРЖАЛСЯ</u></i></b>");
+                        execute(editMessageText);
+
                         execute(questionsUser.questions(status, chatId, idUser));
                     } catch (TelegramApiException e) {
                         e.printStackTrace();
@@ -206,6 +261,12 @@ public class Bot extends TelegramLongPollingBot {
                     botStatusService.updateBotDate(chatId, dataGolosovaniyUser);
 
                     try {
+                        EditMessageReplyMarkup editMessageReplyMarkup = new EditMessageReplyMarkup();
+                        editMessageReplyMarkup.setMessageId(messageId);
+                        editMessageReplyMarkup.setChatId(chatId);
+                        editMessageReplyMarkup.setReplyMarkup(null);
+                        execute(editMessageReplyMarkup);
+
                         execute(questionsUser.questions(status, chatId, idUser));
                     } catch (TelegramApiException e) {
                         e.printStackTrace();
@@ -218,6 +279,12 @@ public class Bot extends TelegramLongPollingBot {
                     botStatusService.updateBotStatus(chatId, BotStatusEnums.ASK_3.name());
                     saveAnswers.deleteAnswer(idUser);
                     try {
+                        EditMessageReplyMarkup editMessageReplyMarkup = new EditMessageReplyMarkup();
+                        editMessageReplyMarkup.setMessageId(messageId);
+                        editMessageReplyMarkup.setChatId(chatId);
+                        editMessageReplyMarkup.setReplyMarkup(null);
+                        execute(editMessageReplyMarkup);
+
                         execute(questionsUser.questions(status, chatId, idUser));
                     } catch (TelegramApiException e) {
                         e.printStackTrace();
