@@ -13,26 +13,6 @@ public class UserService extends NullPointerException {
     @Autowired
     private UserRepository userRepository;
 
-    public Double getAllByArea() {
-        List<String> area = userRepository.getAllByArea();
-        return area.stream().mapToDouble(Double::valueOf).sum();
-    }
-
-    public Double getAllByShare() {
-        List<String> share = userRepository.getAllByShare();
-        return share.stream().mapToDouble(Double::valueOf).sum();
-    }
-
-    public Double getAllByQ11(String status)  {
-        try {
-            List<String> q11 = userRepository.getAllByQ11(status);
-            return q11.stream().mapToDouble(Double::valueOf).sum();
-        } catch (Exception e) {
-            assert e instanceof NullPointerException;
-        }
-        return 0.0;
-    }
-
     public Double getAllByShareTrue(String status) {
         List<String> shareTrue = userRepository.getAllByShareTrue(status);
         return shareTrue.stream().mapToDouble(Double::valueOf).sum();

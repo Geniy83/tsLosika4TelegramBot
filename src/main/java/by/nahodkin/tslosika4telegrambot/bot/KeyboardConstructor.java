@@ -2,7 +2,6 @@ package by.nahodkin.tslosika4telegrambot.bot;
 
 import lombok.SneakyThrows;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
 import java.util.ArrayList;
@@ -50,9 +49,7 @@ public class KeyboardConstructor {
         } else if (values.length > 3) {
             throw new Exception("В метод getRow нельзя передавать больше 3-х кнопок");
         } else {
-            List<InlineKeyboardButton> row = new ArrayList<>();
-            row.addAll(Arrays.asList(values));
-            return row;
+            return new ArrayList<>(Arrays.asList(values));
         }
     }
 
@@ -60,13 +57,13 @@ public class KeyboardConstructor {
      * Статический метод создания клавиатурной разметки.
      * Принимает на вход неограниченное кол-во рядов кнопок типа List<InlineKeyboardButton>.
      */
+    @SafeVarargs
     @SneakyThrows
     public static InlineKeyboardMarkup createMarkup(List<InlineKeyboardButton>... values) {
         if (values == null) {
             throw new Exception("Метод createMarkup не может быть с пустыми параметрами");
         }
-        List<List<InlineKeyboardButton>> buttons = new ArrayList<>();
-        buttons.addAll(Arrays.asList(values));
+        List<List<InlineKeyboardButton>> buttons = new ArrayList<>(Arrays.asList(values));
         InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
         markup.setKeyboard(buttons);
         return markup;
